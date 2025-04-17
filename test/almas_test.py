@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from email_sender import get_email_template, send_email
+from project2 import get_email_template, send_email
 
 class TestEmailSender(unittest.TestCase):
     

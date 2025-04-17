@@ -89,4 +89,4 @@ def send_email(recipient_id, template_id, is_html=False):
     return False
 
 # Example usage:
-send_email(recipient_id=4, template_id=2, is_html=False)
+send_email(recipient_id=1, template_id=2, is_html=False)
