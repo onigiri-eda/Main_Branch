@@ -1,0 +1,44 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  DOCKER_TLS_CERTDIR: "/certs"
+  DB_USER: postgres
+  POSTGRES_DB: db_email_sender
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:latest .
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+test:
+  stage: test
+  image: python:3.9
+  services:
+    - postgres:13
+  variables:
+    POSTGRES_PASSWORD: password
+  script:
+    - apt-get update && apt-get install -y postgresql-client
+    - pip install -r requirements.txt
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+    - psql -h postgres -U postgres -d $POSTGRES_DB -c "SELECT 1"
+    - python -m pytest tests/
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker-compose down
+    - docker-compose up -d
+  only:
+    - main
